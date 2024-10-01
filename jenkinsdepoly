@@ -1,0 +1,31 @@
+node{
+   def buildNumber = BUILD_NUMBER
+    def mavenHome= tool name:"maven2"
+    stage('checkout'){
+      git credentialsId: '297c8dda-b95b-44dc-9389-e5bf57390fd7', url: 'https://github.com/Devops-0/web-app.git'
+    }
+    stage('clean package')
+    {
+      sh "${mavenHome}/bin/mvn clean package"  
+        
+    }
+    stage('code coverage')
+    {
+      sh "${mavenHome}/bin/mvn clean sonar:sonar"  
+        
+    }
+    stage('Artifactry')
+    {
+      sh "${mavenHome}/bin/mvn clean deploy"  
+        
+    }   
+    stage('Deploy')
+    {
+        sshagent(['14dd9992-d314-44d5-bb19-a7bf84da0b15'])
+        {
+      sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ubuntu@65.1.107.107:/opt/tomcat/apache-tomcat-9.0.93/webapps/"     
+}
+}
+    
+
+}
